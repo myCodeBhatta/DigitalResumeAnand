@@ -108,7 +108,7 @@ export default function Hero() {
               transition={{ delay: 0.4 }}
               className="text-slate-400 text-base sm:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8"
             >
-              Results-driven engineer with <span className="text-white font-semibold">9+ years</span> delivering full-stack
+              Results-driven engineer with <span className="text-white font-semibold">12+ years</span> delivering full-stack
               solutions at <span className="text-indigo-400 font-semibold">Wells Fargo</span>. Expert in
               Oracle Core Banking, Java Spring Boot, React, and AI-assisted development.
             </motion.p>
