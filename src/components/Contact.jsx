@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Github, Linkedin, Download, Terminal } from 'lucide-react';
+import { Mail, Phone, MapPin, Github, Linkedin, Download, Terminal, MessageSquare } from 'lucide-react';
 
 const links = [
   {
@@ -30,6 +30,13 @@ const links = [
     href: 'https://github.com/myCodeBhatta',
     color: 'slate',
   },
+  {
+    icon: MessageSquare,
+    label: 'Microsoft Teams',
+    value: 'anandbhatmunna@outlook.com',
+    href: 'https://teams.microsoft.com/l/chat/0/0?users=anandbhatmunna@outlook.com',
+    color: 'teams',
+  },
 ];
 
 const colorMap = {
@@ -37,6 +44,7 @@ const colorMap = {
   emerald: { bg: 'bg-emerald-500/10', icon: 'text-emerald-400', border: 'hover:border-emerald-500/30' },
   sky: { bg: 'bg-sky-500/10', icon: 'text-sky-400', border: 'hover:border-sky-500/30' },
   slate: { bg: 'bg-slate-700/50', icon: 'text-slate-300', border: 'hover:border-slate-500/30' },
+  teams: { bg: 'bg-violet-500/10', icon: 'text-violet-400', border: 'hover:border-violet-500/30' },
 };
 
 export default function Contact() {
