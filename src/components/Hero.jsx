@@ -74,7 +74,7 @@ export default function Hero() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium mb-6"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Available for senior roles
+              Available for Lead Roles
             </motion.div>
 
             {/* Name */}
@@ -214,9 +214,9 @@ export default function Hero() {
                 <p><span className="text-emerald-400">~$</span> <span className="text-slate-300">whoami</span></p>
                 <p className="text-indigo-400">anand-bhat-s</p>
                 <p><span className="text-emerald-400">~$</span> <span className="text-slate-300">cat role.txt</span></p>
-                <p className="text-slate-300">Senior SWE @ Wells Fargo</p>
+                <p className="text-slate-300">Senior Software  @ Wells Fargo</p>
                 <p><span className="text-emerald-400">~$</span> <span className="text-slate-300">experience --years</span></p>
-                <p className="text-amber-400">9+ years ✓</p>
+                <p className="text-amber-400">12+ years ✓</p>
               </div>
             </motion.div>
           </motion.div>
