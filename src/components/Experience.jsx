@@ -97,7 +97,7 @@ export default function Experience() {
         >
           <p className="font-mono text-indigo-400 text-sm mb-3">{'// career'}</p>
           <h2 className="section-title">Work <span className="gradient-text">Experience</span></h2>
-          <p className="section-subtitle">9+ years across banking, fintech & enterprise engineering</p>
+          <p className="section-subtitle">12+ years across banking, fintech & enterprise engineering</p>
         </motion.div>
 
         {/* Timeline */}

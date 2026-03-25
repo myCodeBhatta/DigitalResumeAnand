@@ -43,7 +43,7 @@ function useTypewriter(words, typingSpeed = 80, deletingSpeed = 40, pauseMs = 18
 }
 
 const stats = [
-  { value: '9+', label: 'Years Experience' },
+  { value: '12+', label: 'Years Experience' },
   { value: '5', label: 'Companies' },
   { value: 'AZ-204', label: 'Azure Certified' },
   { value: '4', label: 'Languages Spoken' },
@@ -214,7 +214,7 @@ export default function Hero() {
                 <p><span className="text-emerald-400">~$</span> <span className="text-slate-300">whoami</span></p>
                 <p className="text-indigo-400">anand-bhat-s</p>
                 <p><span className="text-emerald-400">~$</span> <span className="text-slate-300">cat role.txt</span></p>
-                <p className="text-slate-300">Senior Software  @ Wells Fargo</p>
+                <p className="text-slate-300">Senior Software Engineer @ Wells Fargo</p>
                 <p><span className="text-emerald-400">~$</span> <span className="text-slate-300">experience --years</span></p>
                 <p className="text-amber-400">12+ years ✓</p>
               </div>
