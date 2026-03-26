@@ -6,19 +6,19 @@ const skillCategories = [
     icon: Code2,
     title: 'Languages',
     color: 'indigo',
-    skills: ['Java (Core)', 'Python', 'JavaScript', 'JSON'],
+    skills: ['Java (Core)', 'Python', 'JavaScript', 'TypeScript', 'Kotlin','Scala Basics','JSON'],
   },
   {
     icon: Layers,
     title: 'Frameworks',
     color: 'violet',
-    skills: ['Spring Boot', 'React', 'BDD Cucumber', 'TestNG', 'JUnit', 'Rest Assured'],
+    skills: ['Spring Boot', 'Micro Services','React', 'BDD Cucumber', 'TestNG', 'JUnit', 'Rest Assured'],
   },
   {
     icon: FlaskConical,
     title: 'Testing Tools',
     color: 'rose',
-    skills: ['Selenium', 'Appium', 'UFT', 'RIT', 'PEGA', 'Perfecto'],
+    skills: ['Selenium', 'Playwright','Appium', 'UFT', 'Perfecto'],
   },
   {
     icon: Brain,
@@ -30,13 +30,13 @@ const skillCategories = [
     icon: Cloud,
     title: 'Cloud / DevOps',
     color: 'sky',
-    skills: ['Azure AZ-900', 'Azure AZ-204', 'Jenkins', 'OpenShift'],
+    skills: ['Azure AZ-900', 'Azure AZ-204', 'Jenkins', 'OpenShift','UCD','Harness'],
   },
   {
     icon: Database,
     title: 'Databases',
     color: 'amber',
-    skills: ['MongoDB', 'PostgreSQL', 'SQL'],
+    skills: ['MongoDB', 'PostgreSQL', 'Oracle', 'MySQL'],
   },
   {
     icon: GitBranch,
@@ -54,7 +54,7 @@ const skillCategories = [
     icon: Landmark,
     title: 'Banking Products',
     color: 'indigo',
-    skills: ['Oracle OBLM', 'Oracle OBPM', 'Finacle', 'eBBS', 'T24'],
+    skills: ['Oracle OBLM', 'Oracle Flexcube','Oracle OBPM', 'Finacle', 'eBBS', 'T24'],
   },
 ];
 
