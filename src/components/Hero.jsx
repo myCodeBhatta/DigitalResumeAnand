@@ -1,243 +1,179 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, Mail, Phone, Github, Linkedin, Download, ChevronDown } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { animate, motion, useInView, useReducedMotion } from 'framer-motion';
+import { ArrowDown, Download, Github, Linkedin, Mail, MapPin, Sparkles } from 'lucide-react';
+import { profile, stats } from '../data/resume';
+import { GlassCard } from './Glass';
 
-const roles = [
-  'Senior Software Engineer',
-  'QA Architect (SDET)',
-  'Full-Stack Developer',
-  'Automation Expert',
-  'Azure Certified Dev',
-];
-
-function useTypewriter(words, typingSpeed = 80, deletingSpeed = 40, pauseMs = 1800) {
-  const [display, setDisplay] = useState('');
-  const [wordIdx, setWordIdx] = useState(0);
-  const [phase, setPhase] = useState('typing');
+function useTypewriter(words, { type = 70, erase = 35, pause = 1800 } = {}) {
+  const [text, setText] = useState('');
+  const [i, setI] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
-    const current = words[wordIdx];
-    let timeout;
-
-    if (phase === 'typing') {
-      if (display.length < current.length) {
-        timeout = setTimeout(() => setDisplay(current.slice(0, display.length + 1)), typingSpeed);
-      } else {
-        timeout = setTimeout(() => setPhase('pausing'), pauseMs);
-      }
-    } else if (phase === 'pausing') {
-      timeout = setTimeout(() => setPhase('deleting'), 200);
-    } else if (phase === 'deleting') {
-      if (display.length > 0) {
-        timeout = setTimeout(() => setDisplay(display.slice(0, -1)), deletingSpeed);
-      } else {
-        setWordIdx((i) => (i + 1) % words.length);
-        setPhase('typing');
-      }
+    if (reduce) {
+      setText(words[0]);
+      return undefined;
     }
+    const word = words[i];
+    let t;
+    if (!deleting && text.length < word.length) t = setTimeout(() => setText(word.slice(0, text.length + 1)), type);
+    else if (!deleting) t = setTimeout(() => setDeleting(true), pause);
+    else if (text.length > 0) t = setTimeout(() => setText(word.slice(0, text.length - 1)), erase);
+    else {
+      setDeleting(false);
+      setI((n) => (n + 1) % words.length);
+    }
+    return () => clearTimeout(t);
+  }, [text, deleting, i, words, type, erase, pause, reduce]);
 
-    return () => clearTimeout(timeout);
-  }, [display, phase, wordIdx, words, typingSpeed, deletingSpeed, pauseMs]);
-
-  return display;
+  return text;
 }
 
-const stats = [
-  { value: '12+', label: 'Years Experience' },
-  { value: '5', label: 'Companies' },
-  { value: 'AZ-204', label: 'Azure Certified' },
-  { value: '4', label: 'Languages Spoken' },
-];
+function Counter({ value, suffix }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!inView) return undefined;
+    const controls = animate(0, value, { duration: 1.4, ease: [0.22, 1, 0.36, 1], onUpdate: (v) => setN(Math.round(v)) });
+    return () => controls.stop();
+  }, [inView, value]);
+  return (
+    <span ref={ref}>
+      {n}
+      {suffix}
+    </span>
+  );
+}
+
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } };
+const item = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
+
+const kw = { color: 'var(--code-kw)' };
+const ty = { color: 'var(--code-ty)' };
+const str = { color: 'var(--code-str)' };
+const cm = { color: 'var(--text-3)' };
+const an = { color: 'var(--code-an)' };
 
 export default function Hero() {
-  const typedRole = useTypewriter(roles);
+  const role = useTypewriter(profile.roles);
 
   return (
-    <section id="hero" className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      {/* Grid Background */}
-      <div className="absolute inset-0 grid-bg" />
+    <section id="about" className="relative min-h-[100svh] flex flex-col justify-center pt-28 pb-16">
+      {/* A draggable Liquid Glass lens: purely decorative, shows the material refracting the backdrop. */}
+      <motion.div
+        aria-hidden
+        drag
+        dragMomentum={false}
+        whileDrag={{ scale: 1.08 }}
+        className="glass refract hidden lg:block absolute right-[3%] top-[12%] w-36 h-36 rounded-full cursor-grab active:cursor-grabbing z-20"
+        style={{ borderRadius: '50%' }}
+        animate={{ y: [0, -14, 0] }}
+        transition={{ repeat: Infinity, duration: 7, ease: 'easeInOut' }}
+        title="Drag me"
+      />
 
-      {/* Gradient Orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/5 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
-        <div className="flex flex-col lg:flex-row items-center gap-12">
-          {/* Left: Text Content */}
-          <div className="flex-1 text-center lg:text-left">
-            {/* Status Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium mb-6"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Available for Lead Roles
+      <div className="relative max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-10 items-center">
+          <motion.div variants={stagger} initial="hidden" animate="show" className="text-center lg:text-left">
+            <motion.div variants={item} className="glass-pill inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-medium mb-7">
+              <span className="relative flex w-2 h-2">
+                <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping" style={{ background: 'var(--accent-3)' }} />
+                <span className="relative inline-flex w-2 h-2 rounded-full" style={{ background: 'var(--accent-3)' }} />
+              </span>
+              {profile.title} @ {profile.company}
             </motion.div>
 
-            {/* Name */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-4"
-            >
-              Anand{' '}
-              <span className="gradient-text">Bhat S</span>
+            <motion.h1 variants={item} className="text-5xl sm:text-7xl lg:text-[5.5rem] font-extrabold tracking-tight leading-[0.95] mb-5">
+              {profile.firstName}
+              <br />
+              <span className="gradient-text">{profile.lastName}</span>
             </motion.h1>
 
-            {/* Typewriter Role */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="h-10 mb-6 flex items-center justify-center lg:justify-start"
-            >
-              <span className="font-mono text-xl sm:text-2xl text-indigo-400 font-semibold">
-                {typedRole}
-                <span className="animate-pulse text-emerald-400">|</span>
-              </span>
-            </motion.div>
-
-            {/* Summary */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-slate-400 text-base sm:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8"
-            >
-              Results-driven engineer with <span className="text-white font-semibold">12+ years</span> delivering full-stack
-              solutions at <span className="text-indigo-400 font-semibold">Wells Fargo</span>. Expert in
-              Oracle Core Banking, Java Spring Boot, React, and AI-assisted development.
+            <motion.p variants={item} className="font-mono text-lg sm:text-2xl h-9 mb-6" aria-label={profile.roles.join(', ')}>
+              <span style={{ color: 'var(--accent)' }}>&gt;</span> <span aria-hidden>{role}</span>
+              <span aria-hidden className="inline-block w-[2px] h-6 align-middle ml-0.5 animate-pulse" style={{ background: 'var(--accent-3)' }} />
             </motion.p>
 
-            {/* Contact Pills */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-wrap gap-3 justify-center lg:justify-start mb-8 text-sm"
-            >
-              <span className="flex items-center gap-2 text-slate-400">
-                <MapPin size={14} className="text-indigo-400" />
-                Bengaluru, India
-              </span>
-              <a
-                href="mailto:anandbhatmunna.s@gmail.com"
-                className="flex items-center gap-2 text-slate-400 hover:text-indigo-400 transition-colors"
-              >
-                <Mail size={14} className="text-indigo-400" />
-                anandbhatmunna.s@gmail.com
+            <motion.p variants={item} className="muted text-base sm:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8">
+              {profile.years} years in banking and fintech. I build Java Spring Boot microservices inside core banking
+              workflows at <strong style={{ color: 'var(--text)' }}>{profile.company}</strong>, including a Tokenized Deposit
+              service that settles on the Coreblock blockchain.
+            </motion.p>
+
+            <motion.div variants={item} className="flex flex-wrap gap-3 justify-center lg:justify-start mb-8">
+              <a href={profile.resumePdf} download className="btn-primary">
+                <Download size={16} /> Download resume
               </a>
-              <a
-                href="tel:+918144883865"
-                className="flex items-center gap-2 text-slate-400 hover:text-indigo-400 transition-colors"
-              >
-                <Phone size={14} className="text-indigo-400" />
-                +91 81448 83865
+              <a href="#contact" className="btn-glass">
+                <Mail size={16} /> Get in touch
               </a>
             </motion.div>
 
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex flex-wrap gap-4 justify-center lg:justify-start"
-            >
-              <a
-                href="/AnandBhatResume.pdf"
-                download="AnandBhatResume.pdf"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5"
-              >
-                <Download size={16} />
-                Download Resume
-              </a>
-              <a
-                href="https://linkedin.com/in/anand-bhat-0a5063143"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition-all duration-200 border border-slate-700 hover:-translate-y-0.5"
-              >
-                <Linkedin size={16} className="text-sky-400" />
-                LinkedIn
-              </a>
-              <a
-                href="https://github.com/myCodeBhatta"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition-all duration-200 border border-slate-700 hover:-translate-y-0.5"
-              >
-                <Github size={16} />
-                GitHub
-              </a>
-            </motion.div>
-          </div>
-
-          {/* Right: Stats Bento */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="grid grid-cols-2 gap-4 w-full max-w-sm"
-          >
-            {stats.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + i * 0.1 }}
-                className="glass-card p-6 text-center glow-indigo hover:border-indigo-500/40 transition-all duration-300 group"
-              >
-                <div className="text-3xl font-extrabold gradient-text mb-1 group-hover:scale-110 transition-transform">
-                  {stat.value}
-                </div>
-                <div className="text-xs text-slate-500 font-medium">{stat.label}</div>
-              </motion.div>
-            ))}
-
-            {/* Terminal Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-              className="col-span-2 glass-card p-5 font-mono text-xs"
-            >
-              <div className="flex gap-2 mb-3">
-                <span className="w-3 h-3 rounded-full bg-rose-500" />
-                <span className="w-3 h-3 rounded-full bg-amber-500" />
-                <span className="w-3 h-3 rounded-full bg-emerald-500" />
-              </div>
-              <div className="space-y-1">
-                <p><span className="text-emerald-400">~$</span> <span className="text-slate-300">whoami</span></p>
-                <p className="text-indigo-400">anand-bhat-s</p>
-                <p><span className="text-emerald-400">~$</span> <span className="text-slate-300">cat role.txt</span></p>
-                <p className="text-slate-300">Senior Software Engineer @ Wells Fargo</p>
-                <p><span className="text-emerald-400">~$</span> <span className="text-slate-300">experience --years</span></p>
-                <p className="text-amber-400">12+ years ✓</p>
-              </div>
+            <motion.div variants={item} className="flex flex-wrap items-center gap-2 justify-center lg:justify-start">
+              <span className="chip"><MapPin size={12} /> {profile.location}</span>
+              <a className="chip hover:opacity-80" href={profile.linkedin} target="_blank" rel="noreferrer"><Linkedin size={12} /> LinkedIn</a>
+              <a className="chip hover:opacity-80" href={profile.github} target="_blank" rel="noreferrer"><Github size={12} /> GitHub</a>
+              <span className="chip"><Sparkles size={12} /> AI-assisted dev daily</span>
             </motion.div>
           </motion.div>
-        </div>
-      </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-600"
-      >
-        <span className="text-xs font-mono">scroll</span>
+          <motion.div className="min-w-0" initial={{ opacity: 0, scale: 0.94, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}>
+            <GlassCard tilt className="p-0 overflow-hidden">
+              <div className="flex items-center gap-2 px-5 h-11" style={{ borderBottom: '1px solid var(--glass-stroke-2)' }}>
+                <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+                <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
+                <span className="w-3 h-3 rounded-full bg-[#28c840]" />
+                <span className="ml-3 font-mono text-xs faint">AnandBhat.java</span>
+              </div>
+              <pre className="font-mono text-[12.5px] sm:text-[13.5px] leading-7 p-5 sm:p-6 overflow-x-auto">
+                <code>
+                  <span style={an}>@RestController</span> <span style={cm}>// currently @ Wells Fargo</span>{'\n'}
+                  <span style={kw}>public class</span> <span style={ty}>AnandBhat</span> <span style={kw}>extends</span> <span style={ty}>JavaDeveloper</span> {'{'}{'\n'}
+                  {'  '}<span style={kw}>String</span> role = <span style={str}>"Senior AVP, Technology"</span>;{'\n'}
+                  {'  '}<span style={kw}>int</span> years = <span style={an}>12</span>; <span style={cm}>// BFSI</span>{'\n'}
+                  {'  '}<span style={kw}>var</span> stack = <span style={ty}>List</span>.of({'\n'}
+                  {'    '}
+                  {profile.heroStack.map((s, i) => (
+                    <span key={s}>
+                      <span style={str}>"{s}"</span>
+                      {i < profile.heroStack.length - 1 ? ', ' : ''}
+                      {i === 3 ? '\n    ' : ''}
+                    </span>
+                  ))}
+                  {'\n'}
+                  {'  '});{'\n'}
+                  {'  '}<span style={an}>@Featured</span> <span style={ty}>Project</span> tokenizedDeposit;{'\n'}
+                  {'}'}
+                </code>
+              </pre>
+            </GlassCard>
+          </motion.div>
+        </div>
+
         <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-14"
         >
-          <ChevronDown size={18} />
+          {stats.map((s) => (
+            <GlassCard key={s.label} className="p-5 sm:p-6 text-center">
+              <div className="text-3xl sm:text-4xl font-extrabold gradient-text">
+                <Counter value={s.value} suffix={s.suffix} />
+              </div>
+              <div className="text-xs sm:text-sm faint mt-1 font-medium">{s.label}</div>
+            </GlassCard>
+          ))}
         </motion.div>
-      </motion.div>
+
+        <a href="#project" className="hidden sm:flex mx-auto mt-12 w-10 h-10 glass-pill items-center justify-center no-print" aria-label="Scroll to featured project">
+          <motion.span animate={{ y: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.6 }}>
+            <ArrowDown size={16} />
+          </motion.span>
+        </a>
+      </div>
     </section>
   );
 }

@@ -1,115 +1,134 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Terminal } from 'lucide-react';
+import { useState } from 'react';
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
+import { Command, Download, Menu, Moon, Sun, X } from 'lucide-react';
+import { profile, sections } from '../data/resume';
+import { useActiveSection } from '../hooks/useActiveSection';
 
-const navLinks = [
-  { label: 'About', href: '#hero' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Certifications', href: '#certifications' },
-  { label: 'Contact', href: '#contact' },
-];
+const ids = sections.map((s) => s.id);
 
-export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+export default function Navbar({ theme, onToggleTheme, onOpenPalette }) {
+  const active = useActiveSection(ids);
+  const [open, setOpen] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const handleNav = (href) => {
-    setMenuOpen(false);
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+  const go = (id) => {
+    setOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-slate-950/90 backdrop-blur-md border-b border-slate-800/60' : ''
-      }`}
-    >
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <button onClick={() => handleNav('#hero')} className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center group-hover:bg-indigo-500 transition-colors">
-            <Terminal size={16} className="text-white" />
-          </div>
-          <span className="font-mono text-sm font-semibold text-white hidden sm:block">
-            anand<span className="text-indigo-400">.dev</span>
+    <header className="fixed top-3 sm:top-5 inset-x-0 z-50 px-3 sm:px-6 no-print">
+      <motion.nav
+        initial={{ y: -40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="glass-pill refract mx-auto max-w-5xl h-14 pl-2 pr-2 flex items-center justify-between gap-2 overflow-hidden"
+        aria-label="Primary"
+      >
+        <button onClick={() => go('about')} className="flex items-center gap-2 pl-1 pr-3 h-10 rounded-full shrink-0">
+          <span
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm"
+            style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-2))' }}
+          >
+            AB
+          </span>
+          <span className="font-mono text-sm font-semibold hidden sm:block">
+            anand<span style={{ color: 'var(--accent)' }}>bhat</span>
           </span>
         </button>
 
-        {/* Desktop Nav */}
-        <ul className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
-            <li key={link.href}>
+        <ul className="hidden md:flex items-center gap-0.5">
+          {sections.map((s) => (
+            <li key={s.id}>
               <button
-                onClick={() => handleNav(link.href)}
-                className="px-4 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-all duration-200 font-medium"
+                onClick={() => go(s.id)}
+                className="relative px-3.5 h-9 text-sm font-medium rounded-full transition-colors"
+                style={{ color: active === s.id ? 'var(--text)' : 'var(--text-2)' }}
+                aria-current={active === s.id ? 'true' : undefined}
               >
-                {link.label}
+                {active === s.id && (
+                  <motion.span
+                    layoutId="nav-bubble"
+                    className="absolute inset-0 glass-pill"
+                    style={{ borderRadius: 999 }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span className="relative">{s.label}</span>
               </button>
             </li>
           ))}
-          <li>
-            <a
-              href="/AnandBhatResume.pdf"
-              download
-              className="ml-2 px-4 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all duration-200"
-            >
-              Download CV
-            </a>
-          </li>
         </ul>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
-        >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-      </nav>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-slate-950/95 backdrop-blur-md border-b border-slate-800/60"
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={onOpenPalette}
+            className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-medium muted hover:opacity-80"
+            aria-label="Open command palette"
           >
-            <ul className="px-4 py-4 space-y-1">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <button
-                    onClick={() => handleNav(link.href)}
-                    className="w-full text-left px-4 py-3 text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-all"
-                  >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-              <li>
-                <a
-                  href="/AnandBhatResume.pdf"
-                  download
-                  className="block px-4 py-3 text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all text-center"
-                >
-                  Download CV
-                </a>
-              </li>
-            </ul>
+            <Command size={14} /> K
+          </button>
+          <button
+            onClick={onToggleTheme}
+            className="w-9 h-9 rounded-full flex items-center justify-center hover:opacity-80"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={theme}
+                initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+                animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+                transition={{ duration: 0.25 }}
+              >
+                {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+              </motion.span>
+            </AnimatePresence>
+          </button>
+          <a href={profile.resumePdf} download className="btn-primary !py-2 !px-4 hidden sm:inline-flex">
+            <Download size={14} /> CV
+          </a>
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className="md:hidden w-9 h-9 rounded-full flex items-center justify-center"
+            aria-label="Toggle menu"
+            aria-expanded={open}
+          >
+            {open ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
+
+        <motion.span
+          className="absolute left-6 right-6 bottom-0 h-[2px] origin-left rounded-full"
+          style={{ scaleX: progress, background: 'linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3))' }}
+        />
+      </motion.nav>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.97 }}
+            className="glass md:hidden mt-2 mx-auto max-w-5xl p-2"
+          >
+            {sections.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => go(s.id)}
+                className="w-full text-left px-4 py-3 rounded-2xl text-sm font-medium"
+                style={{ color: active === s.id ? 'var(--accent)' : 'var(--text)' }}
+              >
+                {s.label}
+              </button>
+            ))}
+            <a href={profile.resumePdf} download className="btn-primary w-full mt-1">
+              <Download size={14} /> Download resume
+            </a>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }
